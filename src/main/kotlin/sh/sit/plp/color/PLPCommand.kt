@@ -41,7 +41,6 @@ object PLPCommand {
                     })
                 .then(CommandManager.literal("color")
                     .then(CommandManager.argument("color", ColorArgumentType())
-                        .requires { it.isExecutedByPlayer }
                         .suggests { _, builder ->
                             // Fix for a weird bug on Forge (+Sinytra Connector).
                             // It only includes the custom id in CommandTreeS2CPacket if customSuggestions != null,
@@ -54,12 +53,6 @@ object PLPCommand {
                         }
                         .then(CommandManager.argument("player", GameProfileArgumentType.gameProfile())
                             .requires { it.permissions.hasPermission(DefaultPermissions.MODERATORS) }
-                            .suggests { context, builder ->
-                                CommandSource.suggestMatching(
-                                    context.source.server.playerManager.playerList.map { it.gameProfile.name },
-                                    builder
-                                )
-                            }
                             .executes { c ->
                                 runChangeColor(c, false)
                             }))))
