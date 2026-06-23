@@ -1,20 +1,22 @@
 package sh.sit.plp.color
 
-import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.PersistentState
-import net.minecraft.world.PersistentStateType
+import net.minecraft.util.datafix.DataFixTypes
+import net.minecraft.world.level.saveddata.SavedData
+import net.minecraft.world.level.saveddata.SavedDataType
 import sh.sit.plp.PlayerLocatorPlus
+import sh.sit.plp.SavedDataTypeHelper
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
-class PlayerDataState : PersistentState() {
+class PlayerDataState : SavedData() {
     companion object {
-        private val CODEC = NbtCompound.CODEC
+        private val CODEC = CompoundTag.CODEC
             .fieldOf("players")
             .xmap({ playersNbt ->
                 val ret = hashMapOf<UUID, PlayerData>()
-                playersNbt.keys.forEach { k ->
+                playersNbt.keySet().forEach { k ->
                     val playerNbt = playersNbt.getCompound(k).getOrNull()
                     val playerData = PlayerData(
                         customColor = playerNbt?.getInt("customColor")?.getOrNull(),
@@ -25,9 +27,9 @@ class PlayerDataState : PersistentState() {
                     it.players = ret
                 }
             }, { state ->
-                NbtCompound().also { ret ->
+                CompoundTag().also { ret ->
                     state.players.forEach { (k, v) ->
-                        val playerNbt = NbtCompound()
+                        val playerNbt = CompoundTag()
                         v.customColor?.let {
                             playerNbt.putInt("customColor", it)
                         }
@@ -37,15 +39,17 @@ class PlayerDataState : PersistentState() {
             })
             .codec()
 
-        private val TYPE = PersistentStateType(
+        private val TYPE = SavedDataTypeHelper.construct(
             "${PlayerLocatorPlus.MOD_ID}-player_data",
             ::PlayerDataState,
             CODEC,
+            // for some cursed reason Kotlin refuses to pass null to SavedDataType
+            // directly, so we need a Java helper to allow this for us.
             null,
         )
 
         fun of(server: MinecraftServer): PlayerDataState {
-            return server.overworld.persistentStateManager.getOrCreate(TYPE)
+            return server.overworld().dataStorage.computeIfAbsent(TYPE)
         }
     }
 
@@ -53,7 +57,7 @@ class PlayerDataState : PersistentState() {
 
     fun getPlayer(uuid: UUID): PlayerData {
         return players.getOrPut(uuid) {
-            markDirty()
+            setDirty()
             PlayerData()
         }
     }
