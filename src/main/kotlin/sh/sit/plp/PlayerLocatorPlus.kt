@@ -18,7 +18,7 @@ object PlayerLocatorPlus : ModInitializer {
     const val MOD_ID = "player-locator-plus"
     val logger = LoggerFactory.getLogger("player-locator-plus")!!
 
-    val HIDING_EQUIPMENT_TAG = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("player-locator-plus", "hiding_equipment"))!!
+    val HIDING_EQUIPMENT_TAG = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("player-locator-plus", "hiding_equipment"))
 
     private var tickCounter = 0
 
@@ -27,8 +27,8 @@ object PlayerLocatorPlus : ModInitializer {
     override fun onInitialize() {
         ConfigManager.init()
 
-        PayloadTypeRegistry.playS2C().register(PlayerLocationsS2CPayload.ID, PlayerLocationsS2CPayload.CODEC)
-        PayloadTypeRegistry.playS2C().register(ModConfigS2CPayload.ID, ModConfigS2CPayload.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(PlayerLocationsS2CPayload.ID, PlayerLocationsS2CPayload.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(ModConfigS2CPayload.ID, ModConfigS2CPayload.CODEC)
 
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionEvents.Join { handler, _, _ ->
             BarUpdater.fullResend(handler.player)

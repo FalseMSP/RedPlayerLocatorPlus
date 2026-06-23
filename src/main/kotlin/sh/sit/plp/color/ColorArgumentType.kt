@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 class ColorArgumentType : ArgumentType<Int> {
     companion object {
         @JvmField
-        val SERIALIZER = SingletonArgumentInfo.contextFree(::ColorArgumentType)!!
+        val SERIALIZER = SingletonArgumentInfo.contextFree(::ColorArgumentType)
 
         @JvmField
         val suggestionProvider = SuggestionProvider<SharedSuggestionProvider> { commandContext, suggestionsBuilder ->

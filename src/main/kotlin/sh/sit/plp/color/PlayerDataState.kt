@@ -1,6 +1,7 @@
 package sh.sit.plp.color
 
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.datafix.DataFixTypes
 import net.minecraft.world.level.saveddata.SavedData
@@ -40,7 +41,7 @@ class PlayerDataState : SavedData() {
             .codec()
 
         private val TYPE = SavedDataTypeHelper.construct(
-            "${PlayerLocatorPlus.MOD_ID}-player_data",
+            Identifier.fromNamespaceAndPath(PlayerLocatorPlus.MOD_ID, "player_data"),
             ::PlayerDataState,
             CODEC,
             // for some cursed reason Kotlin refuses to pass null to SavedDataType

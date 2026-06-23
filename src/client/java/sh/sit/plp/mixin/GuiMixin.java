@@ -1,8 +1,8 @@
 package sh.sit.plp.mixin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.world.level.GameType;
@@ -28,70 +28,70 @@ public class GuiMixin {
     private SpectatorGui spectatorGui;
 
     @Inject(
-        method = "renderPlayerHealth",
+        method = "extractPlayerHealth",
         at = @At(value = "HEAD")
     )
-    private void beforeRenderStatusBars(GuiGraphics context, CallbackInfo ci) {
+    private void beforeRenderStatusBars(GuiGraphicsExtractor graphics, CallbackInfo ci) {
         float offset = PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset();
         if (offset > 0) {
-            context.pose().pushMatrix();
-            context.pose().translate(0.0f, -offset);
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(0.0f, -offset);
         }
     }
 
     @Inject(
-        method = "renderPlayerHealth",
+        method = "extractPlayerHealth",
         at = @At(value = "RETURN")
     )
-    private void afterRenderStatusBars(GuiGraphics context, CallbackInfo ci) {
+    private void afterRenderStatusBars(GuiGraphicsExtractor graphics, CallbackInfo ci) {
         if (PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset() > 0) {
-            context.pose().popMatrix();
+            graphics.pose().popMatrix();
         }
     }
 
     @Inject(
-        method = "renderHotbarAndDecorations",
+        method = "extractHotbarAndDecorations",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;hasExperience()Z")
     )
-    private void beforeRenderExperienceLevel(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        PlayerLocatorPlusClient.INSTANCE.render(context, tickCounter);
+    private void beforeRenderExperienceLevel(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        PlayerLocatorPlusClient.INSTANCE.render(graphics, deltaTracker);
 
         float offset = PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset();
         if (offset > 0) {
-            context.pose().pushMatrix();
-            context.pose().translate(0.0f, -offset);
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(0.0f, -offset);
         }
     }
 
     @Inject(
-        method = "renderHotbarAndDecorations",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V")
+        method = "extractHotbarAndDecorations",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
     )
-    private void afterRenderExperienceLevel(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    private void afterRenderExperienceLevel(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset() > 0) {
-            context.pose().popMatrix();
+            graphics.pose().popMatrix();
         }
     }
 
     @Inject(
-        method = "renderChat",
+        method = "extractChat",
         at = @At(value = "HEAD")
     )
-    private void beforeRenderChat(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    private void beforeRenderChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         float offset = PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset();
         if (offset > 0) {
-            context.pose().pushMatrix();
-            context.pose().translate(0.0f, -offset);
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(0.0f, -offset);
         }
     }
 
     @Inject(
-        method = "renderChat",
+        method = "extractChat",
         at = @At(value = "RETURN")
     )
-    private void afterRenderChat(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+    private void afterRenderChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset() > 0) {
-            context.pose().popMatrix();
+            graphics.pose().popMatrix();
         }
     }
 

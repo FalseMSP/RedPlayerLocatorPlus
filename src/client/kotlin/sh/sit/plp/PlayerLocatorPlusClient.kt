@@ -6,9 +6,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderPipelines
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.PlayerFaceRenderer
 import net.minecraft.client.DeltaTracker
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.components.PlayerFaceExtractor
 import net.minecraft.client.renderer.entity.LivingEntityRenderer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.resources.Identifier
@@ -136,7 +136,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
         return true
     }
 
-    fun render(context: GuiGraphics, tickCounter: DeltaTracker) {
+    fun render(context: GuiGraphicsExtractor, tickCounter: DeltaTracker) {
         if (!config.visible) return
 
         if (!isBarVisible()) return
@@ -235,35 +235,35 @@ object PlayerLocatorPlusClient : ClientModInitializer {
 
                 context.blitSprite(
                     /* renderPipeline = */ RenderPipelines.GUI_TEXTURED,
-                    /* identifier = */ texture,
-                    /* i = */ markX,
-                    /* j = */ y - 1,
-                    /* k = */ 7,
-                    /* l = */ 7,
-                    /* m = */ color,
+                    /* location = */ texture,
+                    /* x = */ markX,
+                    /* y = */ y - 1,
+                    /* width = */ 7,
+                    /* height = */ 7,
+                    /* color = */ color,
                 )
             } else {
                 context.blitSprite(
                     /* renderPipeline = */ RenderPipelines.GUI_TEXTURED,
-                    /* identifier = */ PLAYER_MARK_WHITE_OUTLINE_TEXTURE,
-                    /* i = */ markX,
-                    /* j = */ y - 1,
-                    /* k = */ 7,
-                    /* l = */ 7,
-                    /* m = */ color,
+                    /* location = */ PLAYER_MARK_WHITE_OUTLINE_TEXTURE,
+                    /* x = */ markX,
+                    /* y = */ y - 1,
+                    /* width = */ 7,
+                    /* height = */ 7,
+                    /* color = */ color,
                 )
 
-                PlayerFaceRenderer.draw(
-                    /* guiGraphics = */ context,
-                    /* identifier = */ playerListEntry.skin.body.texturePath(),
-                    /* i = */ markX + 1,
-                    /* j = */ y,
-                    /* k = */ 5,
-                    /* bl = */ playerListEntry.showHat(),
-                    /* bl2 = */ (playerMarker as? LivingEntity)
+                PlayerFaceExtractor.extractRenderState(
+                    /* graphics = */ context,
+                    /* texture = */ playerListEntry.skin.body.texturePath(),
+                    /* x = */ markX + 1,
+                    /* y = */ y,
+                    /* size = */ 5,
+                    /* hat = */ playerListEntry.showHat(),
+                    /* flip = */ (playerMarker as? LivingEntity)
                         ?.let { LivingEntityRenderer.isUpsideDownName(it.name.string) }
                         ?: false,
-                    /* l = */ -1
+                    /* color = */ -1
                 )
             }
 
@@ -272,20 +272,20 @@ object PlayerLocatorPlusClient : ClientModInitializer {
                 if (heightDiffNormalized > 0.5) { // about 45 deg
                     context.blitSprite(
                         /* renderPipeline = */ RenderPipelines.GUI_TEXTURED,
-                        /* identifier = */ PLAYER_MARK_UP_TEXTURE,
-                        /* i = */ markX + 1,
-                        /* j = */ y - 5,
-                        /* k = */ 5,
-                        /* l = */ 4,
+                        /* location = */ PLAYER_MARK_UP_TEXTURE,
+                        /* x = */ markX + 1,
+                        /* y = */ y - 5,
+                        /* width = */ 5,
+                        /* height = */ 4,
                     )
                 } else if (heightDiffNormalized < -0.5) {
                     context.blitSprite(
                         /* renderPipeline = */ RenderPipelines.GUI_TEXTURED,
-                        /* identifier = */ PLAYER_MARK_DOWN_TEXTURE,
-                        /* i = */ markX + 1,
-                        /* j = */ y + 7,
-                        /* k = */ 5,
-                        /* l = */ 4,
+                        /* location = */ PLAYER_MARK_DOWN_TEXTURE,
+                        /* x = */ markX + 1,
+                        /* y = */ y + 7,
+                        /* width = */ 5,
+                        /* height = */ 4,
                     )
                 }
             }
@@ -311,7 +311,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
     }
 
     private fun renderPlayerNamePlaques(
-        context: GuiGraphics,
+        context: GuiGraphicsExtractor,
         markers: List<NamePlaque>,
         barY: Int,
         fadeProgress: Float = 1f
@@ -364,7 +364,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
             )
 
             // for some reason, if the opacity is under 4, drawText just assumes the color does not include alpha
-            if (textAlpha > 3) context.drawString(
+            if (textAlpha > 3) context.text(
                 textRenderer,
                 marker.playerName,
                 plaqueX + NAME_PLAQUE_PADDING_X,
