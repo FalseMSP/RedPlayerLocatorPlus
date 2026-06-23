@@ -3,6 +3,7 @@ package sh.sit.plp.mixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.world.level.GameType;
@@ -17,8 +18,8 @@ import sh.sit.plp.PlayerLocatorPlusClient;
 
 import java.util.Objects;
 
-@Mixin(Gui.class)
-public class GuiMixin {
+@Mixin(Hud.class)
+public class HudMixin {
     @Shadow
     @Final
     private Minecraft minecraft;
@@ -65,7 +66,7 @@ public class GuiMixin {
 
     @Inject(
         method = "extractHotbarAndDecorations",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBar;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
     )
     private void afterRenderExperienceLevel(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (PlayerLocatorPlusClient.INSTANCE.getCurrentHudOffset() > 0) {
@@ -100,7 +101,7 @@ public class GuiMixin {
         at = @At(value = "RETURN"),
         cancellable = true
     )
-    private void getCurrentBarType(CallbackInfoReturnable<Gui.ContextualInfo> cir) {
+    private void getCurrentBarType(CallbackInfoReturnable<Hud.ContextualInfo> cir) {
         // we hide the vanilla locator bar (so we can draw our own) when our bar should be visible
         // OR when the spectator menu is not open.
         // the vanilla locator bar is visible in spectator without the menu, while our users don't
@@ -109,7 +110,7 @@ public class GuiMixin {
             Objects.requireNonNull(this.minecraft.gameMode).getPlayerMode() == GameType.SPECTATOR
             && !this.spectatorGui.isMenuActive();
         if (
-            cir.getReturnValue() == Gui.ContextualInfo.LOCATOR
+            cir.getReturnValue() == Hud.ContextualInfo.LOCATOR
             && (
                 PlayerLocatorPlusClient.INSTANCE.isBarVisible()
                 || hideVanillaBarInSpectator
@@ -118,9 +119,9 @@ public class GuiMixin {
             // we don't need to account for the jump bar here, because the locator bar never
             // replaces it in vanilla code
             if (this.minecraft.gameMode.hasExperience()) {
-                cir.setReturnValue(Gui.ContextualInfo.EXPERIENCE);
+                cir.setReturnValue(Hud.ContextualInfo.EXPERIENCE);
             } else {
-                cir.setReturnValue(Gui.ContextualInfo.EMPTY);
+                cir.setReturnValue(Hud.ContextualInfo.EMPTY);
             }
         }
     }

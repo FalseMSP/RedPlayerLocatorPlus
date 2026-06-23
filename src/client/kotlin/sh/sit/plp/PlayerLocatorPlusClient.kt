@@ -104,7 +104,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
 
         val player = client.player ?: return false
         val interactionManager = client.gameMode ?: return false
-        val inGameHud = client.gui
+        val hud = client.gui.hud
         val networkHandler = client.connection
 
         // hide when disabled
@@ -112,7 +112,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
             return false
         }
         // hide in F1
-        if (client.options.hideGui) {
+        if (hud.isHidden) {
             return false
         }
         // hide when there are no other players online and relativePositions is empty
@@ -127,7 +127,7 @@ object PlayerLocatorPlusClient : ClientModInitializer {
         // hide in spectator mode when the spectator menu is not open
         if (
             interactionManager.playerMode == GameType.SPECTATOR &&
-            !inGameHud.spectatorGui.isMenuActive &&
+            !hud.spectatorGui.isMenuActive &&
             !config.alwaysVisibleInSpectator
         ) {
             return false
@@ -388,12 +388,12 @@ object PlayerLocatorPlusClient : ClientModInitializer {
             val tickManager = client.level!!.tickRateManager()
             val relativeYaw = waypoint.yawAngleToCamera(
                 /* level = */ client.level!!,
-                /* camera = */ client.gameRenderer.mainCamera,
+                /* camera = */ client.gameRenderer.mainCamera(),
                 /* partialTickSupplier = */ { ent ->
                     client.deltaTracker.getGameTimeDeltaPartialTick(!tickManager.isEntityFrozen(ent))
                 }
             )
-            val yaw = client.gameRenderer.mainCamera.yaw() + relativeYaw
+            val yaw = client.gameRenderer.mainCamera().yaw() + relativeYaw
             val directionVector = Vector3f(
                 -Mth.sin(yaw * (Mth.PI / 180f)),
                 0f,

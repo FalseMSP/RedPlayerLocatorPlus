@@ -23,8 +23,8 @@ public class CommandTreeS2CPacketArgumentNodeMixin {
     @Mutable @Shadow @Final private ArgumentTypeInfo.Template<?> argumentType;
 
     @Inject(method = "<init>(Ljava/lang/String;Lnet/minecraft/commands/synchronization/ArgumentTypeInfo$Template;Lnet/minecraft/resources/Identifier;)V", at = @At("TAIL"))
-    private void afterConstructor(String name, ArgumentTypeInfo.Template<?> properties, Identifier id, CallbackInfo ci) {
-        if (id != null && id.equals(Identifier.fromNamespaceAndPath(PlayerLocatorPlus.MOD_ID, "color"))) {
+    private void afterConstructor(String id, ArgumentTypeInfo.Template<?> argumentType, Identifier suggestionId, CallbackInfo ci) {
+        if (suggestionId != null && suggestionId.equals(Identifier.fromNamespaceAndPath(PlayerLocatorPlus.MOD_ID, "color"))) {
             this.suggestionId = null;
             this.argumentType = SingletonArgumentInfo.contextFree(ColorArgumentType::new)
                     .unpack(new ColorArgumentType());
@@ -32,11 +32,11 @@ public class CommandTreeS2CPacketArgumentNodeMixin {
     }
 
     @Inject(method = "write(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("HEAD"))
-    void beforeWrite(FriendlyByteBuf buf, CallbackInfo ci) {
+    void beforeWrite(FriendlyByteBuf output, CallbackInfo ci) {
         if (this.argumentType.type() == ColorArgumentType.SERIALIZER) {
             this.suggestionId = Identifier.fromNamespaceAndPath(PlayerLocatorPlus.MOD_ID, "color");
-            this.argumentType = ArgumentTypeInfos.byClass(net.minecraft.commands.arguments.ColorArgument.color())
-                    .unpack(net.minecraft.commands.arguments.ColorArgument.color());
+            this.argumentType = ArgumentTypeInfos.byClass(net.minecraft.commands.arguments.TeamColorArgument.teamColor())
+                    .unpack(net.minecraft.commands.arguments.TeamColorArgument.teamColor());
         }
     }
 }

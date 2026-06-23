@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.synchronization.SingletonArgumentInfo
 import net.minecraft.ChatFormatting
+import net.minecraft.world.scores.TeamColor
 import java.util.concurrent.CompletableFuture
 
 class ColorArgumentType : ArgumentType<Int> {
@@ -29,19 +30,19 @@ class ColorArgumentType : ArgumentType<Int> {
         } else {
             reader.readUnquotedString()
         }
-        val formatting = ChatFormatting.getByName(string)
+        val formatting = TeamColor.byName(string)?.textColor()
 
-        return if (formatting != null && formatting.isColor) {
-            formatting.color!!
+        return if (formatting != null) {
+            formatting.value
         } else if (string.startsWith('#') && string.length == 7) {
             try {
                 string.substring(1).toInt(16)
             } catch (_: NumberFormatException) {
-                throw net.minecraft.commands.arguments.ColorArgument
+                throw net.minecraft.commands.arguments.TeamColorArgument
                     .ERROR_INVALID_VALUE.createWithContext(reader, string)
             }
         } else {
-            throw net.minecraft.commands.arguments.ColorArgument
+            throw net.minecraft.commands.arguments.TeamColorArgument
                 .ERROR_INVALID_VALUE.createWithContext(reader, string)
         }
     }
@@ -59,7 +60,6 @@ class ColorArgumentType : ArgumentType<Int> {
             }
         }
 
-        val colorNames = ChatFormatting.getNames(true, false)
-        return SharedSuggestionProvider.suggest(colorNames, builder)
+        return SharedSuggestionProvider.suggest(TeamColor.entries.map { it.serializedName }, builder)
     }
 }
